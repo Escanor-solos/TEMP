@@ -1,0 +1,39 @@
+# Dependencies
+# Prevents the huge node_modules folder from being uploaded
+/node_modules
+
+# Environment Variables
+# CRITICAL: This line prevents your secret API keys from being uploaded
+.env
+.env.local
+.env.*.local
+.env.*
+
+# Vite build output directory
+/dist
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# IDE and Editor directories
+.idea/
+.vscode/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Operating System files
+.DS_Store
+Thumbs.db
