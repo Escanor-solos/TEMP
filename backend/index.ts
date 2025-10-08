@@ -1,9 +1,9 @@
-// PASTE THIS INTO backend/index.ts
+// PASTE THIS ENTIRE FINAL CODE BLOCK INTO backend/index.ts
 
 import express from "express";
 import cors from "cors";
-import dotenv from "dotenv";
-import Groq from "groq-sdk";
+import * as dotenv from "dotenv";
+import OpenAI from "openai"; // Using the OpenAI library to talk to our local AI
 
 dotenv.config();
 const app = express();
@@ -11,6 +11,7 @@ app.use(cors());
 app.use(express.json());
 const PORT = Number(process.env.PORT || 5000);
 
+// This function remains the same
 async function getAgent() {
   const pkg = await import("@0xgasless/agentkit");
   const createAgent = (pkg as any)?.createAgent;
@@ -20,22 +21,27 @@ async function getAgent() {
   return await createAgent({ privateKey: PRIVATE_KEY, rpcUrl: RPC_URL, chainId: Number(CHAIN_ID) });
 }
 
+// This function now talks to your own local Ollama server
 async function generateSolidityFromPrompt(prompt: string): Promise<{ source: string; code: string }> {
-  const apiKey = process.env.GROQ_API_KEY;
-  if (!apiKey) throw new Error("GROQ_API_KEY is not set.");
-  const groq = new Groq({ apiKey });
+  // This is the special configuration for our local Ollama AI
+  const ollama = new OpenAI({
+    apiKey: 'ollama', // A dummy key is required, but it's not used
+    baseURL: 'http://localhost:11434/v1', // This points to the Ollama server running inside our workspace
+  });
 
   const masterPrompt = `You are an expert-level Solidity smart contract developer. Your task is to take a user's request and write a complete, secure, and well-commented Solidity smart contract. CRITICAL INSTRUCTIONS: Your output MUST be ONLY the Solidity code. DO NOT include any explanation or other text. The code MUST be complete and deployable, starting with "// SPDX-License-Identifier: MIT". User's Request: "${prompt}"`;
 
-  const chatCompletion = await groq.chat.completions.create({
+  const chatCompletion = await ollama.chat.completions.create({
     messages: [{ role: 'user', content: masterPrompt }],
-    model: 'llama3-8b-8192',
+    model: 'phi3', // Using the 'phi3' model we downloaded
   });
+
   const text = chatCompletion.choices[0]?.message?.content || "";
-  if (!text) throw new Error("Received an empty response from Groq.");
-  return { source: "groq-llama3", code: text.trim() };
+  if (!text) throw new Error("Received an empty response from local AI.");
+  return { source: "local-ollama-phi3", code: text.trim() };
 }
 
+// Endpoints and app.listen remain the same
 app.post("/build", async (req, res) => {
   try {
     const result = await generateSolidityFromPrompt(req.body.prompt || "");

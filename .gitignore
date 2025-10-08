@@ -36,4 +36,4 @@ pids
 
 # Operating System files
 .DS_Store
-Thumbs.db
+Thumbs.db.env
