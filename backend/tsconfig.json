@@ -7,7 +7,6 @@
     "strict": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
-    /* This is the magic flag that fixes the errors for Express and CORS */
     "esModuleInterop": true
   }
 }
